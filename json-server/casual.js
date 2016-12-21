@@ -25,13 +25,12 @@ casual.define('user', function(id, username) {
 var data = {users: [], posts: []}
 var nrOfPosts = 10;
 var nrOfUsers = 10;
-var loggedInName = "robin";
+var loggedInId = 10;
 
-for (var i = 1; i < nrOfPosts; i++) {
+for (var i = 1; i <= nrOfPosts; i++) {
   data.users.push(casual.user(i))
 }
-data.users.push(casual.user(i, loggedInName))
-data["profile"] = { name: loggedInName }
+data["profile"] = { id: loggedInId }
 
 for (var i = 1; i <= nrOfUsers; i++) {
   data.posts.push(casual.post(i))

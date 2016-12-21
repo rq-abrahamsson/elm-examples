@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "json-server --watch db.json",
+    "generate": "node casual.js > db.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
