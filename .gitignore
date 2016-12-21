@@ -1,0 +1,8 @@
+.DS_Store
+
+node_modules
+
+npm-debug.log
+
+json-server/db.json
+
