@@ -16,5 +16,9 @@ node casual.js > db.json
 
 Run server:
 ```
-json-server --watch db.json
+npm run start
+```
+or
+```
+yarn run start
 ```
