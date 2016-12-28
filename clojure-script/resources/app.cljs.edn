@@ -1,2 +1,0 @@
-{:require [projectname.app.main]
- :init-fns [projectname.app.main/-main]}
