@@ -4,14 +4,12 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Http
-import Json.Encode
-import Json.Decode
-import Json.Decode.Pipeline
 
 
 -- component import example
 
 import Components.Hello exposing (hello)
+import Models exposing (..)
 
 
 -- APP
@@ -27,79 +25,11 @@ main =
         }
 
 
-
--- MODEL
-
-
-type alias Model =
-    { number : Int
-    , profile : Profile
-    , users : List User
-    }
-
-
-model : Model
-model =
-    { number = 0
-    , profile = { id = 1 }
-    , users = []
-    }
-
-
 init : ( Model, Cmd Msg )
 init =
-    ( model, getData )
-
-
-type alias Profile =
-    { id : Int
-    }
-
-
-decodeProfile : Json.Decode.Decoder Profile
-decodeProfile =
-    Json.Decode.Pipeline.decode Profile
-        |> Json.Decode.Pipeline.required "id" (Json.Decode.int)
-
-
-encodeProfile : Profile -> Json.Encode.Value
-encodeProfile record =
-    Json.Encode.object
-        [ ( "id", Json.Encode.int <| record.id )
-        ]
-
-
-type alias User =
-    { id : Int
-    , email : String
-    , username : String
-    , firstname : String
-    , lastname : String
-    , password : String
-    }
-
-
-decodeUser : Json.Decode.Decoder User
-decodeUser =
-    Json.Decode.Pipeline.decode User
-        |> Json.Decode.Pipeline.required "id" (Json.Decode.int)
-        |> Json.Decode.Pipeline.required "email" (Json.Decode.string)
-        |> Json.Decode.Pipeline.required "username" (Json.Decode.string)
-        |> Json.Decode.Pipeline.required "firstname" (Json.Decode.string)
-        |> Json.Decode.Pipeline.required "lastname" (Json.Decode.string)
-        |> Json.Decode.Pipeline.required "password" (Json.Decode.string)
-
-
-encodeUser : User -> Json.Encode.Value
-encodeUser record =
-    Json.Encode.object
-        [ ( "id", Json.Encode.int <| record.id )
-        , ( "email", Json.Encode.string <| record.email )
-        , ( "username", Json.Encode.string <| record.username )
-        , ( "firstname", Json.Encode.string <| record.firstname )
-        , ( "lastname", Json.Encode.string <| record.lastname )
-        , ( "password", Json.Encode.string <| record.password )
-        ]
+    ( model
+    , Cmd.batch [ getData, getPosts, getUsers ]
+    )
 
 
 
@@ -110,9 +40,14 @@ type Msg
     = NoOp
     | GetData
     | NewData (Result Http.Error Profile)
+    | GetUsers
+    | NewUsers (Result Http.Error (List User))
+    | GetPosts
+    | NewPosts (Result Http.Error (List Post))
     | Increment
 
 
+getData : Cmd Msg
 getData =
     let
         url =
@@ -124,6 +59,30 @@ getData =
         Http.send NewData request
 
 
+getUsers : Cmd Msg
+getUsers =
+    let
+        url =
+            "http://localhost:3000/users"
+
+        request =
+            Http.get url decodeUsers
+    in
+        Http.send NewUsers request
+
+
+getPosts : Cmd Msg
+getPosts =
+    let
+        url =
+            "http://localhost:3000/posts"
+
+        request =
+            Http.get url decodePosts
+    in
+        Http.send NewPosts request
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -133,10 +92,28 @@ update msg model =
         GetData ->
             ( model, getData )
 
+        GetUsers ->
+            ( model, getUsers )
+
+        GetPosts ->
+            ( model, getPosts )
+
+        NewUsers (Ok users) ->
+            ( { model | users = users }, Cmd.none )
+
+        NewUsers (Err _) ->
+            ( model, Cmd.none )
+
         NewData (Ok newData) ->
             ( { model | profile = newData }, Cmd.none )
 
         NewData (Err _) ->
+            ( model, Cmd.none )
+
+        NewPosts (Ok newData) ->
+            ( { model | posts = newData }, Cmd.none )
+
+        NewPosts (Err _) ->
             ( model, Cmd.none )
 
         Increment ->
@@ -158,8 +135,11 @@ view model =
             , p [] [ text "Elm" ]
             , p [] [ text ("Logged in profile: " ++ toString model.profile.id) ]
             , button [ class "btn btn-primary btn-lg", onClick GetData ]
-                [ span [] [ text "Button" ]
-                ]
+                [ span [] [ text "Profile" ] ]
+            , button [ class "btn btn-primary btn-lg", onClick GetUsers ]
+                [ span [] [ text "Users" ] ]
+            , button [ class "btn btn-primary btn-lg", onClick GetPosts ]
+                [ span [] [ text "Posts" ] ]
             ]
         ]
 
