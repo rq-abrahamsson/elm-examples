@@ -1,0 +1,5 @@
+
+
+
+* Om skillnaden mellan funktionella språk och att skriva funktionellt i imperativa språk
+http://lukeplant.me.uk/blog/posts/why-learning-haskell-python-makes-you-a-worse-programmer/

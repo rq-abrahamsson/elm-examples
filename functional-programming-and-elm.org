@@ -1,0 +1,20 @@
+* Funktionell programmering och Elm
+
+
+** Lista saker som jag vill ha med om funktionell programmering: 
+
+- Om skillnaden mellan funktionella språk och att skriva funktionellt i imperativa språk ::
+    [[http://lukeplant.me.uk/blog/posts/why-learning-haskell-python-makes-you-a-worse-programmer/][Om varför funktionell programmering är dåligt att lära sig]]
+    Kanske om varför det är dåligt med CMS som är objekt orienterade
+    [[http://lukeplant.me.uk/blog/posts/you-cant-compare-language-features-only-languages/][Compare languages, not features]]
+- Att man inte har lika stora möjligheter att skriva dålig funktionell kod ::
+- Stateless functions::
+- Easy to refactor ::
+-  Kan ej kasta exceptions, och varför det är dåligt att göra det:: 
+
+** Lista mer om Elm som språk?
+
+- No null, union types, reliable, inga runtime exceptions, pattern matching:: 
+[[http://lukeplant.me.uk/blog/posts/null-pointers-vs-none-vs-maybe/][Null pointers vs none vs maybe]]
+- Signals and architechture::
+
