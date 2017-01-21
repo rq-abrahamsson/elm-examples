@@ -1,6 +1,6 @@
 module Main exposing (..)
 
-import Html exposing (..)
+import Navigation as Nav
 
 
 -- component import example
@@ -10,6 +10,7 @@ import Messages exposing (Msg(..))
 import View exposing (view)
 import Update exposing (update)
 import Commands exposing (..)
+import Routing exposing (Route)
 
 
 -- APP
@@ -17,7 +18,7 @@ import Commands exposing (..)
 
 main : Program Never Model Msg
 main =
-    Html.program
+    Nav.program OnLocationChange
         { init = init
         , view = view
         , update = update
@@ -25,11 +26,15 @@ main =
         }
 
 
-init : ( Model, Cmd Msg )
-init =
-    ( model
-    , Cmd.batch [ getData, getPosts, getUsers ]
-    )
+init : Nav.Location -> ( Model, Cmd Msg )
+init location =
+    let
+        currentRoute =
+            Routing.parseLocation location
+    in
+        ( model currentRoute
+        , Cmd.batch [ getData, getPosts, getUsers ]
+        )
 
 
 

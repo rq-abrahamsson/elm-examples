@@ -1,0 +1,188 @@
+diff --git a/blogg-example/elm-package.json b/blogg-example/elm-package.json
+index 249a590..7ce5535 100644
+--- a/blogg-example/elm-package.json
++++ b/blogg-example/elm-package.json
+@@ -13,7 +13,8 @@
+         "elm-lang/html": "2.0.0 <= v < 3.0.0",
+         "elm-lang/http": "1.0.0 <= v < 2.0.0",
+         "elm-lang/navigation": "2.0.1 <= v < 3.0.0",
+-        "evancz/elm-markdown": "3.0.1 <= v < 4.0.0"
++        "evancz/elm-markdown": "3.0.1 <= v < 4.0.0",
++        "evancz/url-parser": "2.0.1 <= v < 3.0.0"
+     },
+     "elm-version": "0.18.0 <= v < 0.19.0"
+ }
+diff --git a/blogg-example/src/elm/Main.elm b/blogg-example/src/elm/Main.elm
+index c983b22..0e3518e 100644
+--- a/blogg-example/src/elm/Main.elm
++++ b/blogg-example/src/elm/Main.elm
+@@ -1,6 +1,7 @@
+ module Main exposing (..)
+ 
+ import Html exposing (..)
++import Navigation as Nav
+ 
+ 
+ -- component import example
+@@ -10,6 +11,7 @@ import Messages exposing (Msg(..))
+ import View exposing (view)
+ import Update exposing (update)
+ import Commands exposing (..)
++import Routing exposing (Route)
+ 
+ 
+ -- APP
+@@ -17,7 +19,7 @@ import Commands exposing (..)
+ 
+ main : Program Never Model Msg
+ main =
+-    Html.program
++    Nav.program OnLocationChange
+         { init = init
+         , view = view
+         , update = update
+@@ -25,11 +27,15 @@ main =
+         }
+ 
+ 
+-init : ( Model, Cmd Msg )
+-init =
+-    ( model
+-    , Cmd.batch [ getData, getPosts, getUsers ]
+-    )
++init : Location -> ( Model, Cmd Msg )
++init location =
++    let
++        currentRoute =
++            Routing.parseLocation location
++    in
++        ( model currentRoute
++        , Cmd.batch [ getData, getPosts, getUsers ]
++        )
+ 
+ 
+ 
+diff --git a/blogg-example/src/elm/Messages.elm b/blogg-example/src/elm/Messages.elm
+index ea1af81..a96e80f 100644
+--- a/blogg-example/src/elm/Messages.elm
++++ b/blogg-example/src/elm/Messages.elm
+@@ -2,6 +2,7 @@ module Messages exposing (..)
+ 
+ import Http
+ import Models exposing (Profile, User, Post)
++import Navigation exposing (Location)
+ 
+ 
+ type Msg
+@@ -13,3 +14,4 @@ type Msg
+     | GetPosts
+     | NewPosts (Result Http.Error (List Post))
+     | Increment
++    | OnLocationChange Location
+diff --git a/blogg-example/src/elm/Models.elm b/blogg-example/src/elm/Models.elm
+index 969c2b7..f763a3e 100644
+--- a/blogg-example/src/elm/Models.elm
++++ b/blogg-example/src/elm/Models.elm
+@@ -3,6 +3,7 @@ module Models exposing (..)
+ import Json.Encode
+ import Json.Decode
+ import Json.Decode.Pipeline
++import Routing
+ 
+ 
+ type alias Model =
+@@ -10,15 +11,17 @@ type alias Model =
+     , profile : Profile
+     , users : List User
+     , posts : List Post
++    , route : Routing.Route
+     }
+ 
+ 
+-model : Model
+-model =
++model : Routing.Route -> Model
++model route =
+     { number = 0
+     , profile = { id = 1 }
+     , users = []
+     , posts = []
++    , route = route
+     }
+ 
+ 
+diff --git a/blogg-example/src/elm/Update.elm b/blogg-example/src/elm/Update.elm
+index 33055ef..8e3395a 100644
+--- a/blogg-example/src/elm/Update.elm
++++ b/blogg-example/src/elm/Update.elm
+@@ -3,6 +3,7 @@ module Update exposing (..)
+ import Messages exposing (Msg(..))
+ import Models exposing (..)
+ import Commands exposing (..)
++import Routing exposing (parseLocation)
+ 
+ 
+ update : Msg -> Model -> ( Model, Cmd Msg )
+@@ -40,3 +41,10 @@ update msg model =
+ 
+         Increment ->
+             ( { model | number = model.number + 1 }, Cmd.none )
++
++        OnLocationChange location ->
++            let
++                newRoute =
++                    parseLocation location
++            in
++                ( { model | route = newRoute }, Cmd.none )
+diff --git a/blogg-example/src/elm/View.elm b/blogg-example/src/elm/View.elm
+index 6c5a826..ea8484f 100644
+--- a/blogg-example/src/elm/View.elm
++++ b/blogg-example/src/elm/View.elm
+@@ -3,6 +3,7 @@ module View exposing (..)
+ import Html exposing (..)
+ import Html.Attributes exposing (..)
+ import Html.Events exposing (onClick)
++import Routing exposing (Route(..))
+ 
+ 
+ --Custom imports
+@@ -14,6 +15,25 @@ import Messages exposing (Msg(..))
+ 
+ view : Model -> Html Msg
+ view model =
++    div []
++        [ page model ]
++
++
++page : Model -> Html Msg
++page model =
++    case model.route of
++        UsersRoute ->
++            div [] [ p [] [ text "Users" ] ]
++
++        PostsRoute ->
++            div [] [ p [] [ text "Posts" ] ]
++
++        NotFoundRoute ->
++            notFoundView
++
++
++funPage : Model -> Html Msg
++funPage model =
+     div [ style [ ( "margin-top", "30px" ), ( "text-align", "center" ) ] ]
+         [ div []
+             [ hello model.number
+@@ -30,6 +50,13 @@ view model =
+         ]
+ 
+ 
++notFoundView : Html msg
++notFoundView =
++    div []
++        [ text "Not found"
++        ]
++
++
+ styles : { img : List ( String, String ) }
+ styles =
+     { img =

@@ -6,7 +6,8 @@ import Http
 --Custom imports
 
 import Messages exposing (Msg(..))
-import Models exposing (decodeProfile, decodeUsers, decodePosts)
+import Models exposing (decodeProfile, decodePosts)
+import Components.Users.Models exposing (decodeUsers)
 
 
 getData : Cmd Msg

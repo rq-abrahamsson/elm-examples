@@ -1,7 +1,9 @@
 module Messages exposing (..)
 
 import Http
-import Models exposing (Profile, User, Post)
+import Models exposing (Profile, Post)
+import Components.Users.Models exposing (..)
+import Navigation exposing (Location)
 
 
 type Msg
@@ -13,3 +15,6 @@ type Msg
     | GetPosts
     | NewPosts (Result Http.Error (List Post))
     | Increment
+    | ShowUsers
+    | ShowPosts
+    | OnLocationChange Location

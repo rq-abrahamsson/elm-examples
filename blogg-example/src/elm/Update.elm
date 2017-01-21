@@ -3,6 +3,8 @@ module Update exposing (..)
 import Messages exposing (Msg(..))
 import Models exposing (..)
 import Commands exposing (..)
+import Routing exposing (parseLocation)
+import Navigation as Nav
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -40,3 +42,16 @@ update msg model =
 
         Increment ->
             ( { model | number = model.number + 1 }, Cmd.none )
+
+        ShowUsers ->
+            ( model, Nav.newUrl "#users" )
+
+        ShowPosts ->
+            ( model, Nav.newUrl "#posts" )
+
+        OnLocationChange location ->
+            let
+                newRoute =
+                    parseLocation location
+            in
+                ( { model | route = newRoute }, Cmd.none )
